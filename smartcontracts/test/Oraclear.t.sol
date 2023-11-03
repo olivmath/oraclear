@@ -17,7 +17,7 @@ contract OraclearTest is BaseSetup, Events {
         assertEq(654, aux.getState());
 
         vm.expectEmit(false, false, false, true);
-        emit NewRequest();
+        emit NewRequest(msg.sender);
         assertEq(654, oraclear.check());
     }
 }
