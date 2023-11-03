@@ -8,9 +8,10 @@ contract Events {
 }
 
 contract Oraclear is Events {
-    uint256 MAXUINT = 10_000_000;
+    uint256 MAXUINT = 1_000_000;
     Aux auxiliary;
-    uint256 public fake;
+    uint256 fake;
+    uint256 public state;
 
     constructor(address aux) {
         auxiliary = Aux(aux);
@@ -21,7 +22,9 @@ contract Oraclear is Events {
 
         sleep();
 
-        return auxiliary.getState();
+        state = auxiliary.getState();
+
+        return state;
     }
 
     function sleep() internal {

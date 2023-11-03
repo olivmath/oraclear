@@ -84,7 +84,7 @@ const express = require('express');
 const { ethers } = require('ethers');
 const Web3 = require('web3');
 
-const web3 = new Web3('ws://127.0.0.1:8545');
+const web3 = new Web3('ws://127.0.0.1:8546');
 
 // Configurações do servidor e do provider
 const app = express();
@@ -98,7 +98,7 @@ const auxiliarContract = new ethers.Contract(auxiliarAddress, auxABI, provider);
 const oraclearContract = new ethers.Contract(
     oraclearAddress,
     oraclearABI,
-    provider
+    new ethers.WebSocketProvider('ws://127.0.0.1:8546'),
 );
 
 // Configuração para ler o corpo da requisição
@@ -122,7 +122,19 @@ web3.eth
         web3.eth.getTransaction(transactionHash).then(function (transaction) {
             if (transaction.to === oraclearAddress) {
                 // Uma transação pendente foi detectada chamando o contrato
-                console.log('>>> [EVENT] Pending transaction:', transaction);
+                console.log(`>>> [EVENT] Pending transaction: ${transaction.hash}`);
+                console.table({
+                    caller: `0x${transaction.from.slice(-4)}`,
+                    calldata: `${transaction.input.slice(0, 10)}`,
+                });
+            }
+            if (transaction.to === auxiliarAddress) {
+                // Uma transação pendente foi detectada chamando o contrato
+                console.log(`>>> [EVENT] Pending transaction:  ${transaction.hash}`);
+                console.table({
+                    caller: `0x${transaction.from.slice(-4)}`,
+                    calldata: `${transaction.input.slice(0, 10)}`,
+                });
             }
         });
     });
@@ -130,7 +142,21 @@ web3.eth
 // Configuração do ouvinte de eventos para o evento NewRequest
 oraclearContract.on('*', (event) => {
     if (event.emitter.target === oraclearAddress) {
-        console.log('>>> [EVENT] Completed transaction:', event.log.topics);
+        console.log(`>>> [EVENT] Completed transaction: ${event.log.transactionHash.slice(0, 4)}`);
+        console.table({
+            contract: `0x${event.log.address.slice(-4)}`,
+            event: `${event.log.data.slice(0, 4)}...`,
+        });
+    }
+});
+
+auxiliarContract.on('*', (event) => {
+    if (event.emitter.target === auxiliarAddress) {
+        console.log(`>>> [EVENT] Completed transaction: ${event.log.transactionHash.slice(0, 4)}`);
+        console.table({
+            contract: `0x${event.log.address.slice(-4)}`,
+            event: `${event.log.data.slice(0, 4)}...`,
+        });
     }
 });
 
@@ -167,9 +193,20 @@ app.get('/check', async (req, res) => {
     }
 });
 
+app.get('/get-state', async (req, res) => {
+    try {
+        // Faz a chamada para o método getState do contrato
+        const state = await auxiliarContract.getState();
+        // Retorna o estado recuperado do contrato
+        res.json({ state: state.toString() });
+    } catch (error) {
+        console.error("Error calling 'getState' method:", error);
+        res.status(500).send(error.toString());
+    }
+});
+
 // Inicia o servidor
 const PORT = 3033;
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
-
