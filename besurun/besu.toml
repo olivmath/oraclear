@@ -15,7 +15,7 @@ rpc-ws-api=["ETH","NET","WEB3"]
 
 
 rpc-ws-enabled = true
-data-path = "./tmpDatdir"
+data-path = "./blockchain/"
 target-gas-limit = 9007199254740991
 min-gas-price = 0
 # logging = "WARN"
