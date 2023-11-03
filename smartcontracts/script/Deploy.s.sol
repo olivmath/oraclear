@@ -1,20 +1,23 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
 import {Script, console2} from "forge-std/Script.sol";
-import {Counter} from "../src/Counter.sol";
+import {Oraclear} from "../src/Oraclear.sol";
+import {Aux} from "../src/Aux.sol";
 
 contract Local is Script {
-    Counter counter;
+    Oraclear oraclear;
+    Aux aux;
 
     function setUp() public {}
 
     function run() public {
         vm.startBroadcast(0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80);
+        aux = new Aux();
+        oraclear = new Oraclear(address(aux));
 
-        counter = new Counter();
-        console2.log("Counter address: ", address(counter));
-
+        console2.log("Aux:      ", address(aux));
+        console2.log("Oraclear: ", address(oraclear));
         vm.stopBroadcast();
     }
 }

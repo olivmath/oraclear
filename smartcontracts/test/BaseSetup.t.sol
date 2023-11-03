@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {Counter} from "../src/Counter.sol";
+import {Oraclear} from "../src/Oraclear.sol";
+import {Aux} from "../src/Aux.sol";
 import {Utils} from "./Utils.t.sol";
 
 contract BaseSetup is Utils {
-    Counter counter;
+    Oraclear oraclear;
+    Aux aux;
 
     address[] users;
     address deployer;
@@ -29,7 +31,8 @@ contract BaseSetup is Utils {
         createMockUsers(users);
 
         vm.startPrank(deployer);
-        counter = new Counter();
+        aux = new Aux();
+        oraclear = new Oraclear(address(aux));
         vm.stopPrank();
     }
 }
