@@ -57,6 +57,8 @@ export const WriteOnlyFunctionForm = ({
     mode: "recklesslyUnprepared",
     overrides: {
       value: typeof txValue === "string" ? parseTxnValue(txValue) : txValue,
+      gasPrice: BigNumber.from(0),
+      gasLimit: BigNumber.from(9007199254740991 - 1),
     },
   });
 
